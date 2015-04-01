@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Put a LICENSE on it
+        </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+        <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:700|Open+Sans:400,700' rel='stylesheet' type='text/css'>
+
+        <style>
+        body {
+            background-image: url(img/graphy.png);
+            font-family: 'Open Sans';
+        }
+
+        h1 {
+            font-family: 'Source Code Pro';
+              font-weight: bold;
+              text-align: center;
+              font-size: 60px;
+        }
+
+        label {
+            font-size: 18pt;
+            line-height: 30pt;
+            font-weight: normal;
+        }
+
+        tr {
+            border: 1px solid #858585;
+        }
+        td {
+            border: none !important;
+        }
+
+        .with-license {
+            background: #F2F2F2;
+        }
+        .without-license {
+            background: #FD8181;
+        }
+        .without-license a {
+            color: #333;
+            font-weight: bold;
+        }
+
+        .corpo {
+            background: #F2F2F2;
+            border-radius: 5px;
+            padding: 15px 80px;
+            font-size: 20px;
+            margin: 40px auto 20px;
+            width: 910px;
+        }
+
+        .foot {
+            background: #F2F2F2;
+            border-radius: 5px;
+            padding: 15px 40px;
+            font-size: 13px;
+            margin: 40px auto 20px;
+            width: 550px;
+        }
+
+        @media only screen and (max-width: 1000px) {
+          h1 {
+            font-size: 50px;
+          }
+
+          .corpo {
+            padding: 15px 40px;
+            margin: 40px 20px 20px;
+            width: auto;
+          }
+        }
+
+        @media only screen and (max-width: 720px) {
+          h1 {
+                      font-size: 40px;
+                    }
+
+          .foot {
+              padding: 15px 40px;
+              font-size: 13px;
+              margin: 40px auto 20px;
+              width: auto;
+          }
+        }
+
+        @media only screen and (max-width: 480px) {
+
+          .corpo {
+            padding: 15px 20px;
+            margin: 40px 0 20px;
+            width: 100%;
+            border-radius: 0;
+            font-size: 15px;
+          }
+          label {
+              font-size: 20px;
+            }
+        }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="page-header">
+                <h1>
+                    If you like your code,<br>put a LICENSE on it!
+                </h1>
+            </div>
+
+            <div class="text-center">
+            <form class="form-inline">
+              <div>
+                <label for="focusedInput">Your GitHub username:</label>
+              </div>
+              <div>
+                <input class="form-control input-lg" id="focusedInput" type="text">
+                <button type="submit" class="btn btn-default btn-lg">Go</button>
+              </div>
+            </form>
+            </div>
+
+            <div class="corpo">
+              <p>This site will check your public GitHub repositories with the (beta!) <a href="https://developer.github.com/v3/licenses/">Licenses API</a> and show you links to add LICENSE files to those that miss it.</p>
+              <p>To add a license just follow the link, name the new file "LICENSE" and pick a template from the dropdown that appears on the right.</p>
+              <p>Remember, if it does not have a license, it's not Open Source!</p>
+              <p>If you need help choosing a license, GitHub made this: <a href="http://choosealicense.com">choosealicense.com</a></p>
+            </div>
+<!--
+            <table class="info-table">
+              <tr>
+                <td>Repo</td>
+                <td>License</td>
+                <td>Last Modified</td>
+                <td>Commits</td>
+                <td>Contributors</td>
+              </tr>
+            </table>
+-->
+
+            <table class="table">
+            </table>
+
+            <p class="foot">
+              Built with &lt;3 by <a href="https://blog.filippo.io">Filippo Valsorda</a> (<a href="https://twitter.com/FiloSottile">@FiloSottile</a>) &amp; Anna Bernardi (<a href="https://twitter.com/AnnaOpss">@AnnaOpss</a>)
+            </p>
+        </div>
+
+        <script src="bower_components/jquery/dist/jquery.min.js" type="text/javascript"></script>
+        <script src="bower_components/underscore/underscore-min.js" type="text/javascript"></script>
+        <script>
+            function getRepo(name, callback) {
+                $.ajax({
+                    headers: {"Accept": "application/vnd.github.drax-preview+json"},
+                    dataType: "json",
+                    url: "https://api.github.com/repos/" + name + "?client_id=eff48dc11695f4dc8a1d&client_secret=4a0e04c75e572e1560f4f5b4a5510bd86ab00c16",
+                    success: callback
+                });
+            }
+
+            function listRepos(name, callback) {
+                $.ajax({
+                    dataType: "json",
+                    url: "https://api.github.com/users/" + name + "/repos" + "?client_id=eff48dc11695f4dc8a1d&client_secret=4a0e04c75e572e1560f4f5b4a5510bd86ab00c16",
+                    success: function(data) {
+                        _.map(
+                            _.filter(data, function(repo) { return !repo.fork }),
+                            function(repo) { getRepo(repo.full_name, callback) }
+                        );
+                    }
+                });
+            }
+
+            function addTableLineGreen(name, fullName, license, updated) {
+                var row = $('<tr class="with-license"></tr>')
+                row.append($('<td></td>').text(name))
+                row.append($('<td></td>').text(license))
+                row.append($('<td></td>').text(updated))
+                row.append($('<td></td>').append(
+                  $('<a>Commits</a>').attr('href', 'https://github.com/' + fullName + '/commits')
+                ))
+                row.append($('<td></td>').append(
+                  $('<a>Contributors</a>').attr('href', 'https://github.com/' + fullName + '/graph/contributors')
+                ))
+                $("table").append(row)
+                $(window).scrollTop($("table").position().top);
+            }
+
+            function addTableLineRed(name, fullName, updated) {
+                var row = $('<tr class="without-license"></tr>')
+                row.append($('<td></td>').text(name))
+                row.append($('<td></td>').append(
+                  $('<a>Add a license!</a>').attr('href', 'https://github.com/' + fullName + '/new/master')
+                ))
+                row.append($('<td></td>').text(updated))
+                row.append($('<td></td>').append(
+                  $('<a>Commits</a>').attr('href', 'https://github.com/' + fullName + '/commits')
+                ))
+                row.append($('<td></td>').append(
+                  $('<a>Contributors</a>').attr('href', 'https://github.com/' + fullName + '/graph/contributors')
+                ))
+                $("table").append(row)
+                $(window).scrollTop($("table").position().top);
+            }
+
+            $("form").submit(function(){
+                $("table").html('')
+                listRepos($("input").val(), function(repo) {
+                    if (repo.license) {
+                      addTableLineGreen(repo.name, repo.full_name, repo.license.name, repo.updated_at)
+                    } else {
+                      addTableLineRed(repo.name, repo.full_name, repo.updated_at)
+                    }
+                });
+                return false
+            })
+        </script>
+
+        <script>
+          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+          ga('create', 'UA-37225193-3', 'auto');
+          ga('send', 'pageview');
+
+        </script>
+    </body>
+</html>
