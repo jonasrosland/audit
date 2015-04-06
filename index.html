@@ -143,6 +143,19 @@
 -->
 
             <table class="table">
+              <thead>
+                <tr>
+                  <th>Repo</th>
+                  <th>License</th>
+                  <th>Last Modified</th>
+                  <th>Commits</th>
+                  <th>Contributors</th>
+                  <th>Bugs</th>
+                  <th>Enhancements</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
             </table>
 
             <p class="foot">
@@ -188,8 +201,14 @@
                 row.append($('<td></td>').append(
                   $('<a>Contributors</a>').attr('href', 'https://github.com/' + fullName + '/graph/contributors')
                 ))
-                $("table").append(row)
-                $(window).scrollTop($("table").position().top);
+                row.append($('<td></td>').append(
+                  $('<a>Bugs</a>').attr('href', 'https://github.com/' + fullName + '/labels/bug')
+                ))
+                row.append($('<td></td>').append(
+                  $('<a>Enhancements</a>').attr('href', 'https://github.com/' + fullName + '/labels/enhancements')
+                ))
+                $("tbody").append(row)
+                $(window).scrollTop($("tbody").position().top);
             }
 
             function addTableLineRed(name, fullName, updated) {
@@ -205,12 +224,18 @@
                 row.append($('<td></td>').append(
                   $('<a>Contributors</a>').attr('href', 'https://github.com/' + fullName + '/graph/contributors')
                 ))
-                $("table").append(row)
-                $(window).scrollTop($("table").position().top);
+                row.append($('<td></td>').append(
+                  $('<a>Bugs</a>').attr('href', 'https://github.com/' + fullName + '/labels/bug')
+                ))
+                row.append($('<td></td>').append(
+                  $('<a>Enhancements</a>').attr('href', 'https://github.com/' + fullName + '/labels/enhancement')
+                ))
+                $("tbody").append(row)
+                $(window).scrollTop($("tbody").position().top);
             }
 
             $("form").submit(function(){
-                $("table").html('')
+                $("tbody").html('')
                 listRepos($("input").val(), function(repo) {
                     if (repo.license) {
                       addTableLineGreen(repo.name, repo.full_name, repo.license.name, repo.updated_at)
