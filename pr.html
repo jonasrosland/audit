@@ -166,6 +166,7 @@
               <thead>
                 <tr>
                   <th>Contributor</th>
+                  <th>Email</th>
                   <th>Title</th>
                   <th>Last updated</th>
                   <th>Link</th>
@@ -195,30 +196,11 @@
 //              window.open('data:application/vnd.ms-excel,' + $('#dvData').html());
 //              e.preventDefault();
 //            });
-
             function getRepo(name, callback) {
                 $.ajax({
                     headers: {"Accept": "application/vnd.github.drax-preview+json"},
                     dataType: "json",
                     url: "https://api.github.com/repos/" + name + "?client_id=eff48dc11695f4dc8a1d&client_secret=4a0e04c75e572e1560f4f5b4a5510bd86ab00c16",
-                    success: callback
-                });
-            }
-
-            function getPr(name, number, callback) {
-                $.ajax({
-                    headers: {"Accept": "application/vnd.github.drax-preview+json"},
-                    dataType: "json",
-                    url: "https://api.github.com/repos/" + name + "/issues/" + number + "?state=all&client_id=eff48dc11695f4dc8a1d&client_secret=4a0e04c75e572e1560f4f5b4a5510bd86ab00c16",
-                    success: callback
-                });
-            }
-
-            function getEmail(name, callback) {
-                $.ajax({
-                    headers: {"Accept": "application/vnd.github.drax-preview+json"},
-                    dataType: "json",
-                    url: "https://api.github.com/users/" + name + "?state=all&client_id=eff48dc11695f4dc8a1d&client_secret=4a0e04c75e572e1560f4f5b4a5510bd86ab00c16",
                     success: callback
                 });
             }
@@ -242,10 +224,31 @@
                     url: "https://api.github.com/repos/" + name + "/pulls" + "?state=all&client_id=eff48dc11695f4dc8a1d&client_secret=4a0e04c75e572e1560f4f5b4a5510bd86ab00c16",
                     success: function(data) {
                         _.map(
-                            _.filter(data, function(repo) { return !repo.fork }),
+                            _.filter(data, function(repo) { 
+                              return !repo.fork;
+                            }),
                             function(repo) { getPr(name, repo.number, callback) }
                         );
                     }
+                });
+            }
+
+            function getPr(name, number, callback) {
+                $.ajax({
+                    headers: {"Accept": "application/vnd.github.drax-preview+json"},
+                    dataType: "json",
+                    url: "https://api.github.com/repos/" + name + "/issues/" + number + "?state=all&client_id=eff48dc11695f4dc8a1d&client_secret=4a0e04c75e572e1560f4f5b4a5510bd86ab00c16",
+                    success: callback
+                });
+            }
+
+            //standalone function to fetch user information, not just email
+            function getUser(name, callback) {
+                $.ajax({
+                    headers: {"Accept": "application/vnd.github.drax-preview+json"},
+                    dataType: "json",
+                    url: "https://api.github.com/users/" + name + "?state=all&client_id=eff48dc11695f4dc8a1d&client_secret=4a0e04c75e572e1560f4f5b4a5510bd86ab00c16",
+                    success: callback
                 });
             }
 
@@ -294,14 +297,18 @@
             }
 
             function addTableLineCommit(name, title, link, updated, labels) {
-                var row = $('<tr class="with-license"></tr>')
-                row.append($('<td></td>').text(name))
-                row.append($('<td></td>').text(title))
-                row.append($('<td></td>').text(updated))
-                row.append($('<td></td>').text(link))
-                row.append($('<td></td>').text(labels))
-                $("tbody").append(row)
-                $(window).scrollTop($("tbody").position().top);
+                //will grab the user ID to see if there is an email object assigned
+                getUser(name, function(user){
+                  var row = $('<tr class="with-license"></tr>')
+                  row.append($('<td></td>').text(name))
+                  row.append($('<td></td>').text(user.email))
+                  row.append($('<td></td>').text(title))
+                  row.append($('<td></td>').text(updated))
+                  row.append($('<td></td>').text(link))
+                  row.append($('<td></td>').text(labels))
+                  $("tbody").append(row)
+                  $(window).scrollTop($("tbody").position().top);
+                })
             }
 
             $("form").submit(function(){
