@@ -123,13 +123,15 @@
               </div>
             </form>
             </div>
-
+<!--
+            <input type="button" id="btnExport" value=" Export Table data into Excel " />
             <div class="corpo">
               <p>This site will check your public GitHub repositories with the (beta!) <a href="https://developer.github.com/v3/licenses/">Licenses API</a> and show you links to add LICENSE files to those that miss it.</p>
               <p>To add a license just follow the link, name the new file "LICENSE" and pick a template from the dropdown that appears on the right.</p>
               <p>Remember, if it does not have a license, it's not Open Source!</p>
               <p>If you need help choosing a license, GitHub made this: <a href="http://choosealicense.com">choosealicense.com</a></p>
             </div>
+-->
 <!--
             <table class="info-table">
               <tr>
@@ -158,6 +160,8 @@
               </tbody>
             </table>
 -->
+<div id="dvData">
+
             <table class="table">
               <thead>
                 <tr>
@@ -171,7 +175,7 @@
               <tbody>
               </tbody>
             </table>
-
+</div>
             <p class="foot">
               Built with &lt;3 by <a href="https://blog.filippo.io">Filippo Valsorda</a> (<a href="https://twitter.com/FiloSottile">@FiloSottile</a>) &amp; Anna Bernardi (<a href="https://twitter.com/AnnaOpss">@AnnaOpss</a>)
             </br>
@@ -181,7 +185,17 @@
 
         <script src="bower_components/jquery/dist/jquery.min.js" type="text/javascript"></script>
         <script src="bower_components/underscore/underscore-min.js" type="text/javascript"></script>
+<!--
+        <script type="text/javascript" src="tableExport.js"></script>
+        <script type="text/javascript" src="jquery.base64.js"></script>
+-->
         <script>
+
+//            $("#btnExport").click(function (e) {
+//              window.open('data:application/vnd.ms-excel,' + $('#dvData').html());
+//              e.preventDefault();
+//            });
+
             function getRepo(name, callback) {
                 $.ajax({
                     headers: {"Accept": "application/vnd.github.drax-preview+json"},
@@ -196,6 +210,15 @@
                     headers: {"Accept": "application/vnd.github.drax-preview+json"},
                     dataType: "json",
                     url: "https://api.github.com/repos/" + name + "/issues/" + number + "?state=all&client_id=eff48dc11695f4dc8a1d&client_secret=4a0e04c75e572e1560f4f5b4a5510bd86ab00c16",
+                    success: callback
+                });
+            }
+
+            function getEmail(name, callback) {
+                $.ajax({
+                    headers: {"Accept": "application/vnd.github.drax-preview+json"},
+                    dataType: "json",
+                    url: "https://api.github.com/users/" + name + "?state=all&client_id=eff48dc11695f4dc8a1d&client_secret=4a0e04c75e572e1560f4f5b4a5510bd86ab00c16",
                     success: callback
                 });
             }
